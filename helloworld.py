@@ -27,8 +27,9 @@ class HelloWorldPlugin:
             """
             QQ平台指令处理逻辑
             """
+            img_url = "https://gchat.qpic.cn/gchatpic_new/905617992/720871955-2246763964-C6EE1A52CC668EC982453065C4FA8747/0?term=2&amp;is_origin=0"
             if message == "helloworld":
-                return True, tuple([True, [Plain("Hello World!!")], "helloworld"])
+                return True, tuple([True, [Plain("Hello World!!"), Image.fromURL(url=img_url)], "helloworld"])
             else:
                 return False, None
         elif platform == "qqchan":
