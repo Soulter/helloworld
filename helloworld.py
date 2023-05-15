@@ -64,7 +64,7 @@ class HelloWorldPlugin:
             "name": "helloworld",
             "desc": "测试插件",
             "help": "测试插件, 回复helloworld即可触发",
-            "version": "v1.0.1 beta",
+            "version": "v1.0.2 beta",
             "author": "Soulter"
         }
     
