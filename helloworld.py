@@ -5,8 +5,10 @@ from nakuru import (
 )
 from botpy.message import Message, DirectMessage
 from model.platform.qq import QQ
-import time
-from cores.qqbot.global_object import AstrMessageEvent
+from cores.qqbot.global_object import (
+    AstrMessageEvent,
+    CommandResult
+)
 
 '''
 注意改插件名噢！格式：XXXPlugin 或 Main
@@ -27,10 +29,19 @@ class HelloWorldPlugin:
     """
     def run(self, ame: AstrMessageEvent):
         if ame.message_str == "helloworld":
-            return True, tuple([True, "Hello World!!", "helloworld"])
+            # return True, tuple([True, "Hello World!!", "helloworld"])
+            return CommandResult(
+                hit=True,
+                success=True,
+                message_chain=[Plain("Hello World!!")],
+                command_name="helloworld"
+            )
         else:
-            return False, None
-
+            return CommandResult(
+                hit=False,
+                success=False,
+                message_chain=None,
+            )
     """
     插件元信息。
     当用户输入 plugin v 插件名称 时，会调用此函数，返回帮助信息。
