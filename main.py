@@ -10,7 +10,7 @@ except ImportError:
 注意以格式 XXXPlugin 或 Main 来修改插件名。
 提示：把此模板仓库 fork 之后 clone 到机器人文件夹下的 addons/plugins/ 目录下，然后用 Pycharm/VSC 等工具打开可获更棒的编程体验（自动补全等）
 '''
-class HelloWorldPlugin:
+class Main:
     """
     AstrBot 会传递 context 给插件。
     
