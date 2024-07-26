@@ -23,7 +23,10 @@ class HelloWorldPlugin:
         self.context.register_commands("helloworld", "helloworld", "内置测试指令。", 1, self.helloworld)
 
     """
-    机器人程序会调用此函数。
+    指令处理函数。
+    
+    - 需要接收两个参数：message: AstrMessageEvent, context: Context
+    - 返回 CommandResult 对象
     """
     def helloworld(self, message: AstrMessageEvent, context: Context):
         return CommandResult().message("Hello, World!")
