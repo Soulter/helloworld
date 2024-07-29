@@ -28,5 +28,5 @@ class Main:
     - 需要接收两个参数：message: AstrMessageEvent, context: Context
     - 返回 CommandResult 对象
     """
-    def helloworld(self, message: AstrMessageEvent, context: Context):
-        return CommandResult().message("Hello, World!")
+    def testp(self, message: AstrMessageEvent, context: Context):
+        return CommandResult().message("测试")
