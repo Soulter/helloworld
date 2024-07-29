@@ -20,7 +20,7 @@ class Main:
     """
     def __init__(self, context: Context) -> None:
         self.context = context
-        self.context.register_commands("helloworld", "helloworld", "内置测试指令。", 1, self.helloworld)
+        self.context.register_commands("testp", "testp", "内置测试指令。", 1, self.helloworld)
 
     """
     指令处理函数。
