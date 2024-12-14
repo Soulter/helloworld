@@ -1,32 +1,13 @@
-flag_not_support = False
-try:
-    from util.plugin_dev.api.v1.bot import Context, AstrMessageEvent, CommandResult
-    from util.plugin_dev.api.v1.config import *
-except ImportError:
-    flag_not_support = True
-    print("导入接口失败。请升级到 AstrBot 最新版本。")
+from astrbot.api.event import filter, AstrMessageEvent, MessageEventResult
+from astrbot.api.star import Context, Star, register
 
-'''
-注意以格式 XXXPlugin 或 Main 来修改插件名。
-提示：把此模板仓库 fork 之后 clone 到机器人文件夹下的 addons/plugins/ 目录下，然后用 Pycharm/VSC 等工具打开可获更棒的编程体验（自动补全等）
-'''
-class Main:
-    """
-    AstrBot 会传递 context 给插件。
+@register("helloworld", "Your Name", "一个简单的 Hello World 插件", "1.0.0")
+class MyPlugin(Star):
+    def __init__(self, context: Context):
+        super().__init__(context)
     
-    - context.register_commands: 注册指令
-    - context.register_task: 注册任务
-    - context.message_handler: 消息处理器(平台类插件用)
-    """
-    def __init__(self, context: Context) -> None:
-        self.context = context
-        self.context.register_commands("helloworld", "helloworld", "内置测试指令。", 1, self.helloworld)
-
-    """
-    指令处理函数。
-    
-    - 需要接收两个参数：message: AstrMessageEvent, context: Context
-    - 返回 CommandResult 对象
-    """
-    def helloworld(self, message: AstrMessageEvent, context: Context):
-        return CommandResult().message("Hello, World!")
+    # 注册指令的装饰器。指令名为 helloworld。注册成功后，发送 `/helloworld` 就会触发这个指令，并回复 `你好, {user_name}!`
+    @filter.command("helloworld")
+    async def helloworld(self, event: AstrMessageEvent):
+        user_name = event.get_sender_name()
+        yield event.plain_result(f"Hello, {user_name}!") # 发送一条纯文本消息
