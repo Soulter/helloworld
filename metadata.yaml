@@ -1,5 +1,5 @@
 name: astrbot_plugin_github_sub # 插件名称
 desc: 根据群聊中 GitHub 相关链接自动发送 GitHub OpenGraph 图片 # 插件描述
 version: 1.0.0 # 插件版本
-author: Soulter # 插件作者
+author: XieMu # 插件作者
 repo: https://github.com/xiemu-c/astrbot_plugin_github_sub # 插件的仓库地址
