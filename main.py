@@ -15,6 +15,7 @@ SUBSCRIPTION_FILE = "data/astrbot_plugin_github_sub_subscriptions.json"
 # 默认仓库数据存储路径
 DEFAULT_REPO_FILE = "data/astrbot_plugin_github_sub_default_repos.json"
 
+GITHUB_URL_PATTERN = r"https://github\.com/[\w\-]+/[\w\-]+(?:/(pull|issues)/\d+)?"
 GITHUB_API_URL = "https://api.github.com/repos/{repo}"
 GITHUB_ISSUES_API_URL = "https://api.github.com/repos/{repo}/issues"
 
@@ -91,6 +92,24 @@ class MyPlugin(Star):
         if self.github_token:
             headers["Authorization"] = f"token {self.github_token}"
         return headers
+
+    @filter.regex(GITHUB_URL_PATTERN)
+    async def github_repo(self, event: AstrMessageEvent):
+        """解析 Github 仓库信息"""
+        msg = event.message_str
+        match = re.search(GITHUB_URL_PATTERN, msg)
+        repo_url = match.group(0)
+        repo_url = repo_url.replace("https://github.com/", "")
+        hash_value = uuid.uuid4().hex
+        opengraph_url = GITHUB_REPO_OPENGRAPH.format(hash=hash_value, appendix=repo_url)
+        logger.info(f"生成的 OpenGraph URL: {opengraph_url}")
+
+        try:
+            yield event.image_result(opengraph_url)
+        except Exception as e:
+            logger.error(f"下载图片失败: {e}")
+            yield event.plain_result("下载 GitHub 图片失败: " + str(e))
+            return
 
     @filter.command("ghsub")
     async def subscribe_repo(self, event: AstrMessageEvent, repo: str):
