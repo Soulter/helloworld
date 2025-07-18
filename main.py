@@ -8,6 +8,7 @@ GITHUB_URL_PATTERN = r"https://github\.com/[\w\-]+/[\w\-]+(?:/(pull|issues)/\d+)
 GITHUB_REPO_OPENGRAPH = "https://opengraph.githubassets.com/{hash}/{appendix}"
 STAR_HISTORY_URL = "https://api.star-history.com/svg?repos={identifier}&type=Date"
 
+
 @register("astrbot_plugin_github_sub", "XieMu", "根据群聊中 GitHub 相关链接自动发送 GitHub OpenGraph 图片", "1.0.0", "https://github.com/xiemu-c/astrbot_plugin_github_sub")
 class MyPlugin(Star):
     def __init__(self, context: Context):
