@@ -11,20 +11,20 @@ from astrbot.api import logger, AstrBotConfig
 import astrbot.api.message_components as Comp
 
 # 订阅数据存储路径
-SUBSCRIPTION_FILE = "data/github_subscriptions.json"
+SUBSCRIPTION_FILE = "data/astrbot_plugin_github_sub_subscriptions.json"
 # 默认仓库数据存储路径
-DEFAULT_REPO_FILE = "data/github_default_repos.json"
+DEFAULT_REPO_FILE = "data/astrbot_plugin_github_sub_default_repos.json"
 
 GITHUB_API_URL = "https://api.github.com/repos/{repo}"
 GITHUB_ISSUES_API_URL = "https://api.github.com/repos/{repo}/issues"
 
 
 @register(
-    "astrbot_plugin_github_cards",
-    "Soulter",
+    "astrbot_plugin_github_sub",
+    "XieMu",
     "GitHub仓库订阅插件",
-    "1.0.2", 
-    "https://github.com/Soulter/astrbot_plugin_github_cards",
+    "1.0.0", 
+    "https://github.com/xiemu-c/astrbot_plugin_github_sub",
 )
 class MyPlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig = None):
