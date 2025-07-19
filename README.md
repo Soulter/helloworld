@@ -4,6 +4,6 @@ AstrBot 插件
 
 A template plugin for AstrBot plugin feature
 
-# 支持Test1
+# 支持Test10086
 
 [帮助文档](https://astrbot.app)
