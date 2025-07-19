@@ -1,4 +1,4 @@
-# helloworld
+# astrbot_plugin_github_sub
 
 AstrBot 插件
 
