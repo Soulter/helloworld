@@ -10,7 +10,7 @@ from astrbot.api.event import filter, AstrMessageEvent
 from astrbot.api.star import Context, Star, register
 from astrbot.api import logger, AstrBotConfig
 import astrbot.api.message_components as Comp
-
+ 
 # 订阅数据存储路径
 SUBSCRIPTION_FILE = "data/astrbot_plugin_github_sub_subscriptions.json"
 # 默认仓库数据存储路径
