@@ -1,156 +1,94 @@
-from astrbot.api.event import filter, AstrMessageEvent
-from astrbot.api.star import Context, Star, register
-from astrbot.api import logger
+import io
 import requests
-import html
-from html2image import Html2Image
-import uuid
-import os
+from PIL import Image, ImageDraw, ImageFont
 
-BASE_URL = "http://172.16.0.101:32031/order/queue/status/"
-
-STATUS_MAP = {
-    "0": "待处理",
-    "1": "处理中",
-    "2": "已完成",
-    "3": "已取消",
-}
+from astrbot.api.event import filter, AstrMessageEvent
+from astrbot.api.star import Star, Context, register
+from astrbot.api import logger
 
 
-@register("zyfurry_bot", "zyfurry", "排单图文插件（精致白底卡片）", "2.2.0", "https://example.com")
-class ZyFurryBot(Star):
+API_URL = "你的 API 地址，例如 http://example.com/order/list"
 
+
+def render_order_card(data: list):
+    """使用 Pillow 渲染排单卡片"""
+
+    count = len(data)
+
+    # 基础尺寸
+    width = 900
+    header_height = 120
+    row_height = 150
+    height = header_height + row_height * max(count, 1)
+
+    # 白底画布
+    img = Image.new("RGB", (width, height), "white")
+    draw = ImageDraw.Draw(img)
+
+    # 字体（AstrBot 容器一般有 DejaVu 字体）
+    font_title = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 46)
+    font_text = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 38)
+
+    # 标题
+    draw.text((40, 40), f"📋 排单统计：{count} 人", fill="black", font=font_title)
+
+    # 内容区起点
+    y = header_height
+
+    if count == 0:
+        draw.text((40, y + 20), "暂无排单数据", fill="gray", font=font_text)
+    else:
+        for item in data:
+            draw.text((40, y), f"👤 用户：{item['username']}", fill="black", font=font_text)
+            draw.text((40, y + 45), f"📦 订单号：{item['orderNo']}", fill="black", font=font_text)
+            draw.text((40, y + 90), f"⏱ 下单时间：{item['orderCreateTime']}", fill="black", font=font_text)
+            y += row_height
+
+    # 保存到字节流
+    buffer = io.BytesIO()
+    img.save(buffer, format="PNG")
+    buffer.seek(0)
+    return buffer
+
+
+@register("zyfurry_bot", "jiatao", "排单查询 + 图片渲染插件（Pillow版）", "1.0.0")
+class OrderPlugin(Star):
     def __init__(self, context: Context):
         super().__init__(context)
-        self.hti = Html2Image(output_path="/tmp")
 
-    @filter.command("queueimg")
-    async def query_queue_img(self, event: AstrMessageEvent):
-        """
-        /queueimg 0   → 查询排单 → 白底卡片图片返回
-        """
+    @filter.command("order")
+    async def order_cmd(self, event: AstrMessageEvent):
+        """查询排单并以图片形式输出"""
 
-        args = event.message_str.split()
-        if len(args) < 2:
-            yield event.plain_result("用法：/queueimg <状态>\n例：/queueimg 0")
-            return
+        logger.info("开始请求接口获取排单信息…")
 
-        status = args[1]
-        if status not in STATUS_MAP:
-            yield event.plain_result("状态必须为 0/1/2/3")
-            return
-
-        # API 请求
         try:
-            resp = requests.get(BASE_URL + status, timeout=6)
-            js = resp.json()
+            resp = requests.get(API_URL, timeout=5)
+            resp.raise_for_status()
         except Exception as e:
-            yield event.plain_result(f"接口异常：{e}")
+            logger.error(f"接口请求失败: {e}")
+            yield event.plain_result("❌ 接口请求失败，请稍后再试")
             return
 
-        orders = js.get("data", [])
-        total = len(orders)
+        # 解析 JSON
+        try:
+            json_data = resp.json()
+        except Exception as e:
+            logger.error(f"解析 JSON 失败: {e}")
+            yield event.plain_result("❌ 数据格式错误")
+            return
 
-        # HTML 生成
-        items_html = ""
-        for o in orders:
-            username = html.escape(o.get("username", "未知"))
-            order_no = html.escape(o.get("orderNo", "未知"))
-            order_time = html.escape(o.get("orderCreateTime", "未知"))
-            status_text = STATUS_MAP.get(str(o["status"]), "未知")
+        if json_data.get("code") != 0:
+            yield event.plain_result("❌ 接口返回异常")
+            return
 
-            items_html += f"""
-                <div class="item">
-                    <div class="title">👤 {username}</div>
-                    <div class="line">🧾 订单号：<span class="code">{order_no}</span></div>
-                    <div class="line">📌 状态：<b>{status_text}</b></div>
-                    <div class="line">⏱ 下单时间：{order_time}</div>
-                </div>
-                <div class="divider"></div>
-            """
-
-        # HTML 模板（白底、现代、专业）
-        html_code = f"""
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <style>
-                body {{
-                    font-family: "Microsoft YaHei", sans-serif;
-                    background: #fafafa;
-                    margin: 0;
-                    padding: 30px;
-                }}
-                .card {{
-                    background: #ffffff;
-                    width: 650px;
-                    margin: auto;
-                    padding: 30px 40px;
-                    border-radius: 12px;
-                    box-shadow: 0px 4px 16px rgba(0,0,0,0.08);
-                }}
-                .header {{
-                    font-size: 26px;
-                    font-weight: bold;
-                    margin-bottom: 10px;
-                }}
-                .subinfo {{
-                    font-size: 16px;
-                    color: #666;
-                    margin-bottom: 25px;
-                }}
-                .item {{
-                    margin-bottom: 15px;
-                }}
-                .title {{
-                    font-size: 20px;
-                    font-weight: 600;
-                    margin-bottom: 6px;
-                }}
-                .line {{
-                    margin: 4px 0;
-                    font-size: 16px;
-                }}
-                .code {{
-                    font-family: Consolas, monospace;
-                    background: #f2f2f2;
-                    padding: 2px 5px;
-                    border-radius: 4px;
-                }}
-                .divider {{
-                    height: 1px;
-                    background: #eaeaea;
-                    margin: 16px 0;
-                }}
-            </style>
-        </head>
-        <body>
-            <div class="card">
-                <div class="header">📋 排单统计结果</div>
-                <div class="subinfo">
-                    状态：{STATUS_MAP[status]}（{status}）<br>
-                    记录总数：{total}
-                </div>
-
-                {items_html}
-
-            </div>
-        </body>
-        </html>
-        """
+        data_list = json_data.get("data", [])
 
         # 生成图片
-        file_name = f"queue_{uuid.uuid4().hex}.png"
-        file_path = f"/tmp/{file_name}"
+        img_bytes = render_order_card(data_list)
 
-        self.hti.screenshot(
-            html_str=html_code,
-            save_as=file_name,
-            size=(700, 10)
-        )
-
-        # 返回图片
-        yield event.image_result(file_path)
+        # 由 AstrBot 发送图片
+        yield event.image_result(img_bytes)
 
     async def terminate(self):
-        logger.info("排单图文插件已卸载")
+        logger.info("插件已卸载")
