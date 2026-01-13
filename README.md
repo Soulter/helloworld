@@ -6,4 +6,4 @@ A template plugin for AstrBot plugin feature
 
 # 支持
 
-[帮助文档](https://astrbot.app)
+- [插件开发文档](https://docs.astrbot.app/dev/star/plugin-new.html)
