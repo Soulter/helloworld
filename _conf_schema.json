@@ -1,0 +1,35 @@
+{
+  "_basic_section": {
+    "description": "=== 基础配置 ===",
+    "type": "text",
+    "invisible": true
+  },
+  "max_memes_per_message": {
+    "description": "每条消息最大表情包数量",
+    "type": "int",
+    "default": 1,
+    "hint": "设置每条消息最多使用的表情包数量",
+    "slider": {
+      "min": 1,
+      "max": 10,
+      "step": 1
+    }
+  },
+  "meme_frequency": {
+    "description": "表情包发送频率",
+    "type": "int",
+    "default": 50,
+    "hint": "设置表情包发送的概率（0-100），值越大，发送表情包的概率越高",
+    "slider": {
+      "min": 0,
+      "max": 100,
+      "step": 1
+    }
+  },
+  "clean_meme_tags": {
+    "description": "清理表情包标签",
+    "type": "bool",
+    "default": true,
+    "hint": "是否清理文本中的表情包标签"
+  }
+}
