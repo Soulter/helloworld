@@ -1,14 +1,85 @@
-# astrbot-plugin-helloworld
+📅 增强版多任务定时提醒插件 (v1.5.0)
 
-AstrBot 插件模板 / A template plugin for AstrBot plugin feature
+本插件为 AstrBot 专用，支持多任务并行、自动校准北京时间以及多种时间格式解析。无论你的服务器在国内还是海外，都能精准提醒。
 
-> [!NOTE]
-> This repo is just a template of [AstrBot](https://github.com/AstrBotDevs/AstrBot) Plugin.
-> 
-> [AstrBot](https://github.com/AstrBotDevs/AstrBot) is an agentic assistant for both personal and group conversations. It can be deployed across dozens of mainstream instant messaging platforms, including QQ, Telegram, Feishu, DingTalk, Slack, LINE, Discord, Matrix, etc. In addition, it provides a reliable and extensible conversational AI infrastructure for individuals, developers, and teams. Whether you need a personal AI companion, an intelligent customer support agent, an automation assistant, or an enterprise knowledge base, AstrBot enables you to quickly build AI applications directly within your existing messaging workflows.
+🚀 核心功能
 
-# Supports
+多任务并行：支持同时布置多个提醒，互不干扰，每个任务独立运行。
 
-- [AstrBot Repo](https://github.com/AstrBotDevs/AstrBot)
-- [AstrBot Plugin Development Docs (Chinese)](https://docs.astrbot.app/dev/star/plugin-new.html)
-- [AstrBot Plugin Development Docs (English)](https://docs.astrbot.app/en/dev/star/plugin-new.html)
+
+
+时区自动校准：强制锁定北京时间 (UTC+8)，彻底解决服务器 8 小时时差问题。
+
+
+
+智能解析：支持相对时间（秒/分/时）和绝对时间（具体时刻/年月日）。
+
+
+
+唯一标识：每个任务生成专属 Task ID，方便追踪。
+
+🛠️ 安装方法
+
+在 AstrBot 插件目录新建 .py 文件。
+
+
+
+将最终版代码完整复制并保存。
+
+
+
+重启 AstrBot 即可自动加载。
+
+📝 使用指南
+
+1. 唤起帮助
+
+发送指令查看当前系统参考时间和格式说明：
+
+
+
+指令： /定时
+
+
+
+2. 设置提醒 (支持三种格式)
+
+模式,指令示例,说明
+
+相对时间,/提醒我 10s 喝水,支持 s(秒)、m(分)、h(时)
+
+当天时刻,/提醒我 22:30 睡觉,若时间已过，会自动定在明天的该时刻
+
+具体日期,/提醒我 2026-03-06 08:00 起床,标准的 YYYY-MM-DD 格式
+
+💡 使用技巧
+
+并发测试：你可以连续发送多条指令，例如：
+
+
+
+/提醒我 5s 任务A
+
+
+
+/提醒我 10s 任务B
+
+
+
+机器人会分别为它们创建 ID 并准时提醒。
+
+
+
+内容说明：若不输入提醒内容（如 /提醒我 10s），机器人默认提醒“时间到啦！”。
+
+
+
+最大跨度：为保证性能，提醒时间上限设置为 30 天。
+
+⚠️ 注意事项
+
+内存运行：本插件目前任务存储在内存中。如果重启机器人程序，尚未触发的定时任务将会丢失。
+
+
+
+网络延迟：提醒通过异步推送，可能会受平台接口（如 QQ/微信）网络波动影响产生 1-2 秒的细微偏差。
