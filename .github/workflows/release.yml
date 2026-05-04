@@ -2,7 +2,7 @@ name: Auto Release
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
     paths:
       - 'metadata.yaml'
 
@@ -43,12 +43,12 @@ jobs:
           VERSION="${{ steps.get_version.outputs.version }}"
           echo "Looking for version: $VERSION"
           
-          # 使用 Python 提取 changelog
-          CHANGELOG=$(python3 -c "
+          # 创建 Python 脚本文件来提取 changelog
+          cat > extract_changelog.py << 'PYTHON_SCRIPT'
           import re
           import sys
           
-          version = '$VERSION'
+          version = sys.argv[1]
           
           try:
               with open('CHANGELOG.md', 'r', encoding='utf-8') as f:
@@ -57,9 +57,9 @@ jobs:
               print('修复了一些已知问题')
               sys.exit(0)
           
-          # 匹配指定版本的内容
-          pattern = rf'^## \\[{re.escape(version)}\\].*?\\n(.*?)$(?=\\n## \\[|\\Z)'
-          match = re.search(pattern, content, re.MULTILINE | re.DOTALL)
+          # 匹配指定版本的内容 (匹配 ## [vX.Y.Z] 到下一个 ## [ 或文件结尾)
+          pattern = rf'## \[{re.escape(version)}\]\s*-\s*\d{{4}}-\d{{2}}-\d{{2}}\s*\n(.*?)(?=\n## \[|\Z)'
+          match = re.search(pattern, content, re.DOTALL)
           
           if match:
               changelog = match.group(1).strip()
@@ -69,7 +69,13 @@ jobs:
                   print('修复了一些已知问题')
           else:
               print('修复了一些已知问题')
-          ")
+          PYTHON_SCRIPT
+          
+          # 执行 Python 脚本并将输出写入文件
+          python3 extract_changelog.py "$VERSION" > changelog_output.txt
+          
+          # 读取文件内容到变量
+          CHANGELOG=$(cat changelog_output.txt)
           
           # 如果 changelog 为空，使用默认提示
           if [ -z "$CHANGELOG" ]; then
@@ -79,12 +85,15 @@ jobs:
           echo "Extracted changelog:"
           echo "$CHANGELOG"
           
-          # 写入输出
+          # 写入 GitHub Actions 输出
           {
             echo "changelog<<EOF"
             echo "$CHANGELOG"
             echo "EOF"
           } >> $GITHUB_OUTPUT
+          
+          # 清理临时文件
+          rm -f extract_changelog.py changelog_output.txt
       
       - name: Create Release
         if: steps.check_release.outputs.exists == 'false'
